@@ -3,18 +3,30 @@
 # Project Overview
 
 This project aims to develop an application that is able, using a Machine Learning model, to categorize received messages.
-The repository contains the code used to train the model, as well as making it possible to receive new datasets (in the same structure as the dataset used).
+
+During a disaster, the algorithm can help companies and individuals in directing a series of messages to the responsible agencies, enabling an efficient targeting and therefore faster and more accurate actions.
+
+The repository contains the code used to train the model, in addition to making it possible to receive new datasets (in the same structure as the dataset used).
 
 # File Descriptions
 
-**process_data.py:** This code takes as its input csv files containing message data and message categories (labels), and creates an SQLite database containing a merged and cleaned version of this data.
+**DisasterResponse/app/templates/go.html:** Classification result page of web app.
 
-**train_classifier.py:** This code takes the SQLite database produced by process_data.py as an input and uses the data to train and tune a ML model for categorizing messages. 
-The output is a pickle file containing the fitted model.
+**DisasterResponse/app/templates/master.html:** Main page of web app.
 
-**data:** This folder contains sample messages and categories datasets in csv format.
+**DisasterResponse/app/run.py:** Flask file that runs app.
 
-**app:** This folder contains all of the files necessary to run and render the web app.
+**DisasterResponse/data/disaster_categories.csv:** Categories datasets in csv format.
+
+**DisasterResponse/data/disaster_messages.csv:** Categories datasets in csv format.
+
+**DisasterResponse/data/process_data.py:** ETL process. Here, I read the dataset, clean the data, and then store it in a SQLite database. 
+
+**DisasterResponse/data/DisasterResponse.db:** Database to save clean data to.
+
+**DisasterResponse/models/train_classifier.py:** Machine learning portion. I split the data into a training set and a test set. Then, I create a machine learning pipeline that uses NLTK, as well as scikit-learn's Pipeline and GridSearchCV to output a final model that uses the message column to predict classifications for 36 categories (multi-output classification). Finally, I export the model to a pickle file.
+
+**DisasterResponse/models/classifier.pkl:** Saved model.
 
 # Instructions
 
