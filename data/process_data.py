@@ -35,6 +35,12 @@ def clean_data(df):
     del df['categories']
     df = pd.concat([df, categories], axis=1)
     df.drop_duplicates(inplace=True)
+    my_list = []
+    for i in range(4,df.shape[1]):
+      df = df[(df.iloc[:,i] == 1) | (df.iloc[:,i] == 0)]
+      if df.iloc[:,i].nunique() == 1:
+        my_list.append(df.columns[i])
+    df = df.drop(columns=my_list)
     return df
 
 def save_data(df, database_filename):
