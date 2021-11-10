@@ -4,45 +4,57 @@ import pandas as pd
 from sqlalchemy import *
 
 def load_data(messages_filepath, categories_filepath):
-    # load messages dataset
+    '''
+    Data Loading function
+    Arguments:
+        messages_filepath: path to messages csv file
+        categories_filepath: path to categories csv file
+    Output:
+        df: Loaded DataFrame
+    '''
     messages = pd.read_csv(messages_filepath)
-    # load categories dataset
     categories = pd.read_csv(categories_filepath)
-    # merge datasets
     df = messages.merge(categories, how='inner', on=['id'])
     return df
 
 def clean_data(df):
-    # create a dataframe of the 36 individual category columns
+    '''
+    Data Cleaning function
+    Arguments:
+        df: Uncleaned DataFrame
+    Outputs:
+        df: Cleaned DataFrame
+    '''
     categories = df['categories'].str.split(';',expand=True)
-    # select the first row of the categories dataframe
     row = categories.iloc[0,:]
-    # use this row to extract a list of new column names for categories.
-    # one way is to apply a lambda function that takes everything 
-    # up to the second to last character of each string with slicing
     category_colnames = row.apply(lambda x: x.partition("-")[0])
-    # rename the columns of `categories`
     categories.columns = category_colnames
     for column in categories:
-        # set each value to be the last character of the string
         categories[column] = categories[column].apply(lambda x: x.partition("-")[2])
-        # convert column from string to numeric
         categories[column] = categories[column].astype(int)
-    # drop the original categories column from `df`
     del df['categories']
-    # concatenate the original dataframe with the new `categories` dataframe
     df = pd.concat([df, categories], axis=1)
-    # drop duplicates
     df.drop_duplicates(inplace=True)
     return df
 
-
 def save_data(df, database_filename):
+    '''
+    Save Data
+    Arguments:
+        df: Clean DataFrame
+        database_filename: Database destination
+    '''
     engine = create_engine('sqlite:///' + database_filename)
     df.to_sql('projectTable', engine, index=False, if_exists='replace')
 
 
 def main():
+    '''
+    Main function executes:
+        1) Data Loading
+        2) Data Cleaning
+        3) Data Saving
+    '''
     if len(sys.argv) == 4:
 
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]
