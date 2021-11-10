@@ -30,7 +30,15 @@ nltk.download('wordnet')
 nltk.download('stopwords')
 
 def load_data(database_filepath):
-    # load data from database
+    '''
+    Data Loading
+    Arguments:
+        database_filepath: path to SQLite db
+    Output:
+        X: input feature
+        Y: labels
+        category_names: labels names
+    '''
     engine = create_engine('sqlite:///' + database_filepath)
     df = pd.read_sql_table('projectTable', engine)
     X = df['message']
@@ -39,11 +47,15 @@ def load_data(database_filepath):
     return X, Y, category_names
 
 def tokenize(text):
-    # Convert text to lowercase and remove punctuation
+    '''
+    Tokenization
+    Arguments:
+        text: text messages
+    Output:
+        clean_tokens: tokenized and cleaned text
+    '''
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
-    # Tokenize words
     tokens = word_tokenize(text)
-    # Lemmatizer word tokens and remove stop words
     stop_words = stopwords.words("english")
     lemmatizer = WordNetLemmatizer()
 
@@ -52,22 +64,32 @@ def tokenize(text):
     return clean_tokens
 
 def build_model():
-    # Create pipeline
+    '''
+    Building Model
+    Output:
+        cv: model architecture
+    '''
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(RandomForestClassifier()))
     ])
-    # Create parameters dictionary
     parameters = {'vect__min_df': [1, 5],
                   'tfidf__use_idf':[True, False],
                   'clf__estimator__n_estimators':[10, 25],
                   'clf__estimator__min_samples_split':[2, 5, 10]}
-    # Create grid search object
     cv = GridSearchCV(pipeline, param_grid = parameters)
     return cv
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    Evaluate the trained model and show classification report
+    Arguments:
+    model: trained model
+    X_test: test data
+    Y_test: test target
+    category_names: labels
+    '''
     # predict X_test
     Y_pred = model.predict(X_test)
     for i in range(0,len(Y_test.columns)):
@@ -75,6 +97,12 @@ def evaluate_model(model, X_test, Y_test, category_names):
         print(classification_report(Y_test.iloc[:,i], pd.DataFrame(Y_pred)[i]))
 
 def save_model(model, model_filepath):
+    '''
+    Function that save the final model
+    Arguments:
+    model: result of the GridSearchCV
+    model_filepath: file path of final model
+    '''
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
