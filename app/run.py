@@ -16,11 +16,15 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 
 def tokenize(text):
-    # Convert text to lowercase and remove punctuation
+    '''
+    Tokenization
+    Arguments:
+        text: text messages
+    Output:
+        clean_tokens: tokenized and cleaned text
+    '''
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
-    # Tokenize words
     tokens = word_tokenize(text)
-    # Lemmatizer word tokens and remove stop words
     stop_words = stopwords.words("english")
     lemmatizer = WordNetLemmatizer()
 
