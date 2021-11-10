@@ -2,6 +2,9 @@ import json
 import plotly
 import pandas as pd
 import re
+import nltk
+import string
+import joblib
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -10,7 +13,6 @@ from nltk.corpus import stopwords
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
-import joblib
 from sqlalchemy import create_engine
 
 app = Flask(__name__)
@@ -39,19 +41,22 @@ df = pd.read_sql_table('projectTable', engine)
 # load model
 model = joblib.load("models/classifier.pkl")
 
+# extract data needed for visuals
+genre_counts = df.groupby('genre').count()['message']
+genre_names = list(genre_counts.index)
+
+df_categories = df.drop(['id'], axis=1)._get_numeric_data()
+top_categories_pcts1 = df_categories.sum().sort_values(ascending=False).head(10)
+top_categories_names1 = list(top_categories_pcts1.index)
+
+top_categories_pcts2 = df_categories.sum().sort_values(ascending=True).head(10)
+top_categories_names2 = list(top_categories_pcts2.index)
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
 def index():
-    
-    # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
-    
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -70,16 +75,51 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data': [
+                Bar(
+                    x=top_categories_names1,
+                    y=top_categories_pcts1
+                )
+            ],
+
+            'layout': {
+                'title': 'Top 10 most recidivist categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=top_categories_names2,
+                    y=top_categories_pcts2
+                )
+            ],
+
+            'layout': {
+                'title': 'Top 10 less recidivist categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
+                }
+            }
         }
     ]
-    
+
     # encode plotly graphs in JSON
     ids = ["graph-{}".format(i) for i, _ in enumerate(graphs)]
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
-    
+
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
-
 
 # web page that handles user query and displays model results
 @app.route('/go')
