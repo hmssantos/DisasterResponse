@@ -56,9 +56,9 @@ If you close it, the web app will "crash".
 
 When accessing the web app, you should be able to see this screen:
 
-![image](https://user-images.githubusercontent.com/91185275/141036221-cc3fb48a-769b-4879-8019-eca342820faa.png)
+![image](https://user-images.githubusercontent.com/91185275/141108322-cf5f3210-720a-4959-b6a5-684adcf447d8.png)
 
-![image](https://user-images.githubusercontent.com/91185275/141036239-b1c195b2-c497-42b5-8e52-b8a5480c7d22.png)
+![image](https://user-images.githubusercontent.com/91185275/141108366-c4f9d2a3-2a3a-4d42-bd65-9407cab13f86.png)
 
 To check how the machine learning algorithm classifies a particular message, just type and click on the button.
 
